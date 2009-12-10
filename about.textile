@@ -1,3 +1,7 @@
+---
+layout: static
+title: About Big Easy
+---
 h1. About
 
 It's about time. It's about space.
