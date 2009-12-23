@@ -1,0 +1,55 @@
+---
+layout: static
+title: About Big Easy
+---
+h1. Programming to Story Cards
+
+One of my programming maladies is doing to much. Adding requirements where there are none. I'm going to use "Prattle":http://github.com/bigeasy/prattle as an example.
+
+With Prattle I wanted a tool like Ruby migrations that would either build an application database, or else patch an existing application database. I was dissatisfied with the auto-magic schema generation built into JPA. It compares the JPA definition with the database schema. It is not always able to navigate the changes, and even when it can transform the schema, it doesn't give me an opportunity to transform the data.
+
+I started hacking. I will describe my development process. I used SLF4J to manage the levels and provide an outlet for single line log messages. I created a simple domain-specific language, chained method invocations, to build maps and lists. I'd create an entry, put named values in the entry, then send the entry.
+
+The entry would be put into a blocking queue, and a single thread would pluck entires from the blocking queue and feed the entires to recorders. A record would write the structured entry out as YAML. Later I would create a record that wrote out JSON, which ended up being the preferred format for my web application log inspector interface.
+
+Ideally, as a developer, I can create a log of structured entries. If I am updating a domain object, I can dump the object as it was at the start of the method, and dump the object at the end of the method. Using a log viewer, I can see these two objects, their full structure, and see how they have changed. If there is a problem with a particular property, I can inspect the changes to that property, without having the prescience to know that that property needed to be added to a formated log message.
+
+Using SLF4J and logging configuration, I can raise or lower the logging level of a particular class, set of classes, package or set of packages, and the structured logging becomes a lot of no-op function calls.
+
+Probably too much exposition, can peel some of that out, but...
+
+The place where I went wrong, was once items hit the log, they were flattened forever. I didn't see that at first, because while I was implementing the dumping of objects, I was informing my design by the capabilities of SnakeYAML and not the needs of the developers who would use the library.
+
+SnakeYAML can serialize and deserialize Java objects, so I was providing an interface to the developer that asked them to consider whether or not the object was mutable. If it was not going to change, I could queue the object and send it to the writer thread, where it could be serialized by SnakeYAML. That, to my mind, was more efficient than me trying to duplicate SnakeYAML's object serialization code.
+
+If it was mutable, and liable to change, then the developer could call serialize and use Java serialization to turn the Serializable Java object into a byte stream that would make it's way to the recorder, which would deserialize the object. Here I'd be using Java serialization which would be smarter than anything I felt like adding to my logging library.
+
+If the object was not serializable, the could call flatten, which would turn an object into a map by treating the object as a Java Bean and using @BeanInfo@. No in depth reflection, just the properties exposed by the @ProeprtyDescriptor@ instances returned by the @BeanInfo@ object.
+
+All this, because SnakeYAML is smart about serializing Java objects and I'm listing to it, but not to the voice in my head that asked for Prattle in the first place.
+
+That voice wanted to be able to be able to be able to record logging information in manner that is concise, and does not want to put log message formatting in their application code. That voice wanted to have a record of information and does not want the bother of formatting it into a logging message. That voice wanted to be able to look at either a nicely indented dump of the data, or else a nicely tree view of the data.
+
+But there was never a need to resurrect the objects in the context of a log viewer. There was never a story entitled _Developer Reconstitutes Domain Objects in Log Viewer_.
+
+So, I wrote the story card above. It said I wanted to to create a structured log entry, not serialize objects. I don't want to violate encapsulation to get data for my log entry. 
+
+If an object is not a property Java Bean, I'll put the information in the entry as name values pairs. That satisfies my desire to capture the data, without having to create a formatted log message. I don't want to have a convoluted invocation of a reflection intensive serialization strategy. All I want is @{foo: 1, bar: 'baz'}@.
+
+Now there is a method called flatten, which comes form my @BeanInfo@ method, that will flatten a bean. You can specify a deep flatten, but that has no protection for recursion. You can specify some specific object paths to include, but that won't handle a tree structure with parent child relationships. We want flatten to be moderately fast, not terribly complicated.
+
+But, hey, if you really want to dump a proper tree, you can provide a custom converter to the flatten configuration that will do the Right Thing<sup><small>TM</small></sup>.
+
+Thus, flatten turns a Java object into a @Map@. The @Recorder@ will retrieve an object that contains only arrays or instances of @Map@, @Collection@, @Number@, @String@, or @Boolean@. Which means that they get written out as JSON, YAML or XML, quickly, and they get reconstituted into hierarchical structures of primitives that can be processed by any language that can read JSON, YAML or XML.
+
+I saw this when I started to write my Prattle Viewer story cards. I use story cards to guide myself when developing a user interface, but the moment I wrote my story cards, I saw that there was no story card for all this object serialization nonsense.
+
+With Addendum, I started hacking. I created my domain-specific language for specifying the migrations. As I did, I added the notion of validation to the changes, that Addendum, as a final step, would check the data dictionary and assert that the database schema matched the Addendum definition.
+
+Which added a lot of code, and to what end? It seems like a nice idea, but if you build a bad database, you ought to be able to catch that with your unit test suite.
+
+Building to story cards makes it really easy for me to design the software and eliminate the piffle. My new drive is for concise software that avoid piffle oriented programming practices.
+
+Building software APIs according to story cards really cleans out the headgear.
+
+The I before E except after C of programming. It appears to be a rule, but it is not. It is a coincidence. 
