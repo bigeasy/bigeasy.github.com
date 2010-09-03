@@ -1,7 +1,0 @@
----
-layout: default
-title: GitHub Home
----
-h1. Place Holder
-
-Not sure what to write about there, if I will actually have technical articles. It seems like a good place for that sort of thing. I had a domain, but I don't use it. I had created a lot of technical documentation, but I haven't published it.
