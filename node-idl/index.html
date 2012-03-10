@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Node IDL</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="site/idl.css">
+</head>
+<body>
+  
+  <a href="http://github.com/bigeasy/node-idl"><img style="position: fixed; top: 0; right:
+  0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"
+  alt="Fork me on GitHub" /></a>
+  
+  <div id="container">
+    <div id="api">
+      <h1>Node IDL</h1>
+      
+        
+      
+        
+          <h2 class="heading">Synopsis</h3>
+        
+      
+        
+          <h2 class="heading">Rationale</h3>
+        
+      
+        
+          <h2 class="heading">Reference</h3>
+        
+      
+        
+          <h3 class="namespace depth-0">idl</h3>
+        
+      
+        
+          <h3 class="function depth-1">generate</h3>
+        
+      
+      
+        <h2 class="heading">Docco</h3>
+        
+          
+        
+          
+            
+            <h3 class="docco depth-0"><a href="./documentation/idl.html">idl.coffee</a></h3>
+          
+        
+      
+    </div>
+    <div id="narrative">
+      
+        
+        
+        
+          <h1>Node IDL</h1>
+
+<p>Interface documentation generation for Node.js JavaScript and CoffeeScript.</p>
+        
+      
+        
+        
+        
+          <h2>Synopsis</h2>
+
+<p>Node IDL helps you generate a nice landing page for the GitHub Pages of your
+Node.js modules. Node IDL supports both JavaScript and CoffeeScript.</p>
+
+<p>Once you've written an <code>*.idl</code> file for your project, you can run it through
+the <code>node-idl</code> translator to generate multi-section, scrollable landing page, a
+man page, or a  <code>*.markdown</code> page, so that the same documentation can be found
+where ever the user turns for answers.</p>
+
+<p>Node IDL is meant for utility programs, and it man page sized in scope. If you
+have a complicated framework, your documentation needs may be to greate for Node
+IDL, but if you're a programmer who just spiked an awesome new module, and you
+want to have your house in order when you announce, Node IDL is the markup
+langauge for you.</p>
+        
+          <div class='highlight'><pre># Project Name
+
+A one liner describing the project.
+
+## Synopsis
+
+Write something to hook them.
+
+## Installing
+
+Make it quick.
+
+## Guide
+
+Reel them in.
+
+## Reference
+
+namespace:  ftp
+
+Describe your namespace.
+
+function:   createClient
+
+  parameter:  host
+
+  Indentation is used to group the parameter documentation to the parameter.
+
+Explain the use of this function.
+
+class:      FTPClient
+
+  factory:    ftp.createClient
+
+  Describe how to create the class using a factory.
+
+Describe the use of this class.
+
+  event: data
+
+    parameter: chunk
+
+    This is a parameter given to the callback.
+
+  Explain the use of this event.
+</pre></div>
+        
+          
+        
+      
+        
+        
+        
+          <h2>Rationale</h2>
+
+<p>CoffeeScript already has an excellend documentation tool named
+<a href="http://jashkenas.github.com/docco/">Docco</a> that generated literate programming
+style documetation. The documentation is taken from the source file and
+presented in a two column format, so that the syntax highlighted source code is
+side-by-side with its line documentation.</p>
+
+<p>The annotated source code format is beautiful. It clearly describes the purpose
+of the code. It makes it easy to learn CoffeeScript to read the source of
+existing CoffeeScript programs.</p>
+
+<p>This is different from other documentation tools like <strong>RDoc</strong> or <strong>Javadoc</strong>,
+which hide the source code in accordance with the "design by contact" and
+"program to interfaces" tenants of the bureaucratic software development.</p>
+
+<p>Those programmers, and there are many, who interpret the happenstance of their
+software environment as meaningful stricture, tend to see the API style of
+annotating functions as some form of Good Thing, and that showing source code in
+thier documentation is a Bad Thing. Because they can't do it, it must be that
+they is is bad to do it. It is a just world after all.</p>
+
+<p>The literate programming nature of Docco and CoffeeScript is something
+different, something good. This documents the implementation and focuses that
+documentation on the source. It makes it easy to learn CoffeeScript, just read
+the annotated source of the CoffeeScript programmers who inspire you.</p>
+
+<p>But, documenting the API is important too. Users who are JavaScript programmers
+and uninterested in CoffeeScript will be interested only in how to use a library
+and will not want to see the sausage being made.</p>
+
+<h3>Embedded API Documentation is A Bridge Too Far</h3>
+
+<p>I greatly appreciate Docco as a means to document the source code itself, and
+would <strong>hate</strong> to see that polluted with API documentation.</p>
+
+<p>Adding embedded API would overload Docco. Although there are <a href="http://sstephenson.github.com/strscan-js/">some lovely
+examples of Docco that explain implementation <em>and</em>
+interface</a>, when you want to include
+source code examples, detailed descriptions of parameters or callback
+parameters, or show the API outline, the Docco can become disproportionately
+documentation.</p>
+
+<p>In fact, the bulk of programming is not an API. The bulk of of programming is
+applications, and documenting applications in that pseudo-formal, "pay no
+attention to the man behind the curtain" style of documentation is needlessly
+bureaucratic. You might have the URL to handler bindings for your application
+defined using domain-specific langauge, right there, three lines below a tedious
+repetition of what would be obvious if only you could see the source.</p>
+
+<p>The API style of documentation adds a lot of work, but little value, if the
+software is not supposed to be a black box, but a living application. The Docco
+style is a good fit, turning the software into its own story.</p>
+
+<p>Which is why Node IDL aspires to give the developer a nice superset of Markdown
+to desrcribe their program outside of their program.</p>
+
+<h3>But, External Documentation Will Get Out of Sync</h3>
+
+<p>No more so than embedded API documentation. API documentation is no fun to
+write. Even when it is snuggled up to the code that implements it, it falls out
+of sync with the implementation. It falls out of sync because it is painful to
+try to describe software without code to illustrate the software.</p>
+
+<p>Docco stays in sync because the illustrative code is the actual code. It stays
+in sync because Docco is beautiful and because generating meaningful Docco
+generates a sense of accomplishment.</p>
+
+<p>Node IDL will be accurate because it will generate project documentation that is
+structured, meaningiful, and beautiful. It will generate project documentation
+in today's fashion of the succinct scrollable project page. Node IDL will be
+accurate because there will be real benefit to keeping it accurate.</p>
+        
+      
+        
+        
+        
+          <h2>Reference</h2>
+        
+      
+        
+          <h3 class="namespace">idl</h3>
+        
+        
+        
+          <p>Node ILD exports methods through its idl namespace.</p>
+        
+          <div class="highlight"><pre><span class="kd">var</span> <span class="nx">idl</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;idl&quot;</span><span class="p">);</span>
+</pre></div>
+
+        
+          
+        
+      
+        
+          
+            <h3 class="function">idl.generate(source, destination)</h3>
+          
+        
+        
+            
+                <div class="parameter">
+                  <h4>source</h4>
+                  
+                    <p>The source IDL file to parse.</p>
+                  
+                </div>
+            
+                <div class="parameter">
+                  <h4>destination</h4>
+                  
+                    <p>The output file to generate.</p>
+                  
+                </div>
+            
+        
+        
+          <p>Generates an HTML page from the IDL <code>source</code> and emits the HTML in the
+<code>destination</code> file. The method is asynchronous.</p>
+        
+      
+    </div>
+  </div>
+</body>
+</html>

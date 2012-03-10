@@ -1,0 +1,114 @@
+<!DOCTYPE html>  <html> <head>   <title>tar.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               tar.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="octowrap">                 <a class="octothorpe" href="#section-1">#</a>               </div>               <p>Require Node.js core modules.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">events = </span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;events&quot;</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="octowrap">                 <a class="octothorpe" href="#section-2">#</a>               </div>               <p>Require <code>node-packet</code>.</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">packet = </span><span class="nx">require</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s2">&quot;/../../node-packet/lib/packet&quot;</span><span class="p">)</span>
+
+<span class="nv">module.exports.Writer = </span><span class="k">class</span> <span class="nx">Writer</span> <span class="k">extends</span> <span class="nx">events</span><span class="p">.</span><span class="nx">EventEmitter</span>
+  <span class="nv">constructor: </span><span class="o">-&gt;</span>
+
+<span class="nv">ustar = </span><span class="k">new</span> <span class="nx">Buffer</span><span class="p">(</span><span class="s2">&quot;ustar&quot;</span><span class="p">,</span> <span class="s2">&quot;utf8&quot;</span><span class="p">)</span>
+
+<span class="nv">magical = </span><span class="nf">(magic) -&gt;</span>
+  <span class="k">for</span> <span class="nx">b</span><span class="p">,</span> <span class="nx">i</span> <span class="k">in</span> <span class="nx">ustar</span>
+    <span class="k">if</span> <span class="nx">magic</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">isnt</span> <span class="nx">b</span>
+      <span class="k">return</span> <span class="kc">false</span>
+  <span class="kc">true</span>
+
+<span class="nv">module.exports.Reader = </span><span class="k">class</span> <span class="nx">Reader</span> <span class="k">extends</span> <span class="nx">events</span><span class="p">.</span><span class="nx">EventEmitter</span>
+  <span class="nv">constructor: </span><span class="o">-&gt;</span>
+    <span class="vi">@parser = </span><span class="k">new</span> <span class="nx">packet</span><span class="p">.</span><span class="nx">Parser</span><span class="p">()</span>
+    <span class="nx">@parser</span><span class="p">.</span><span class="nx">packet</span><span class="p">(</span><span class="s2">&quot;basic&quot;</span><span class="p">,</span> <span class="p">[</span>
+      <span class="s2">&quot;b8[100]z|utf8()&quot;</span>           <span class="c1"># The file name.</span>
+      <span class="s2">&quot;b8[8]z|utf8()|atoi(8)&quot;</span>     <span class="c1"># The file mode as a zero padded octal.</span>
+      <span class="s2">&quot;b8[8]z|utf8()|atoi(8)&quot;</span>     <span class="c1"># The owner uid.</span>
+      <span class="s2">&quot;b8[8]z|utf8()|atoi(8)&quot;</span>     <span class="c1"># The owner gid.</span>
+      <span class="s2">&quot;b8[12]|utf8()|atoi(8)&quot;</span>     <span class="c1"># The size.</span>
+      <span class="s2">&quot;b8[12]|utf8()|atoi(8)&quot;</span>     <span class="c1"># The modified time.</span>
+      <span class="s2">&quot;b8[8]z|utf8()|atoi(8)&quot;</span>     <span class="c1"># The checksum.</span>
+      <span class="s2">&quot;b8&quot;</span>                        <span class="c1"># The type flag.</span>
+      <span class="s2">&quot;b8[100]z|utf8()&quot;</span>           <span class="c1"># The link name.</span>
+      <span class="s2">&quot;b8[6]&quot;</span>                     <span class="c1"># The USTAR magic message.</span>
+    <span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="nx">@basic</span><span class="p">)</span>
+    <span class="nx">@parser</span><span class="p">.</span><span class="nx">packet</span><span class="p">(</span><span class="s2">&quot;ustar&quot;</span><span class="p">,</span> <span class="p">[</span>
+      <span class="s2">&quot;b8[2]z|utf8()&quot;</span>             <span class="c1"># The USTAR version.</span>
+      <span class="s2">&quot;b8[32]z|utf8()&quot;</span>            <span class="c1"># The user name.</span>
+      <span class="s2">&quot;b8[32]z|utf8()&quot;</span>            <span class="c1"># The group name.</span>
+      <span class="s2">&quot;b8[8]z|utf8()|atoi(8)&quot;</span>     <span class="c1"># The device major number.</span>
+      <span class="s2">&quot;b8[8]z|utf8()|atoi(8)&quot;</span>     <span class="c1"># The device minor number.</span>
+      <span class="s2">&quot;b8[155]z|utf8()&quot;</span>           <span class="c1"># The prefix for the name.</span>
+      <span class="s2">&quot;x8[12]&quot;</span>                    <span class="c1"># Nothing.</span>
+    <span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span>  <span class="nx">@ustar</span><span class="p">)</span>
+    <span class="nx">@parser</span><span class="p">.</span><span class="nx">packet</span><span class="p">(</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span> <span class="p">[</span>
+      <span class="s2">&quot;x8[249]&quot;</span>                   <span class="c1"># The remaining bytes if not ustar.</span>
+    <span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">),</span> <span class="nx">@skip</span><span class="p">)</span>
+    <span class="nx">@reset</span><span class="p">()</span>
+
+  <span class="nv">reset: </span><span class="o">-&gt;</span>
+    <span class="vi">@mode     = </span><span class="s2">&quot;start&quot;</span>
+    <span class="vi">@end      = </span><span class="mi">0</span>
+
+  <span class="nv">basic: </span><span class="p">(</span><span class="nx">name</span><span class="p">,</span> <span class="nx">mode</span><span class="p">,</span> <span class="nx">uid</span><span class="p">,</span> <span class="nx">gid</span><span class="p">,</span> <span class="nx">size</span><span class="p">,</span> <span class="nx">mtime</span><span class="p">,</span> <span class="nx">checksum</span><span class="p">,</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">linkname</span><span class="p">,</span> <span class="nx">magic</span><span class="p">,</span> <span class="nx">parser</span><span class="p">)</span> <span class="o">=&gt;</span>
+    <span class="vi">@header = </span><span class="p">{</span> <span class="nx">name</span><span class="p">,</span> <span class="nx">mode</span><span class="p">,</span> <span class="nx">uid</span><span class="p">,</span> <span class="nx">gid</span><span class="p">,</span> <span class="nx">size</span><span class="p">,</span> <span class="nx">mtime</span><span class="p">,</span> <span class="nx">checksum</span><span class="p">,</span> <span class="nx">type</span><span class="p">,</span> <span class="nx">linkname</span><span class="p">,</span> <span class="nx">magic</span> <span class="p">}</span>
+
+    <span class="k">if</span> <span class="nx">magical</span> <span class="nx">magic</span>
+      <span class="nx">@parser</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="s2">&quot;ustar&quot;</span><span class="p">)</span>
+    <span class="k">else</span>
+      <span class="nx">@parser</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="s2">&quot;skip&quot;</span><span class="p">)</span>
+
+  <span class="nv">ustar: </span><span class="p">(</span><span class="nx">version</span><span class="p">,</span> <span class="nx">user</span><span class="p">,</span> <span class="nx">group</span><span class="p">,</span> <span class="nx">devmajor</span><span class="p">,</span> <span class="nx">devminor</span><span class="p">,</span> <span class="nx">prefix</span><span class="p">)</span> <span class="o">=&gt;</span>
+    <span class="k">for</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">v</span> <span class="k">of</span>  <span class="p">{</span> <span class="nx">version</span><span class="p">,</span> <span class="nx">user</span><span class="p">,</span> <span class="nx">group</span><span class="p">,</span> <span class="nx">devmajor</span><span class="p">,</span> <span class="nx">devminor</span><span class="p">,</span> <span class="nx">prefix</span> <span class="p">}</span>
+      <span class="nx">@header</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">=</span> <span class="nx">v</span>
+
+    <span class="vi">@header.ustar     = </span><span class="kc">true</span>
+    <span class="vi">@header.filename  = </span><span class="nx">@header</span><span class="p">.</span><span class="nx">prefix</span> <span class="o">+</span> <span class="nx">@header</span><span class="p">.</span><span class="nx">name</span>
+
+    <span class="nx">@skip</span><span class="p">()</span>
+
+  <span class="nv">skip: </span><span class="o">=&gt;</span>
+    <span class="nx">@header</span><span class="p">.</span><span class="nx">filename</span>  <span class="o">or=</span> <span class="nx">@header</span><span class="p">.</span><span class="nx">name</span>
+    <span class="nx">@header</span><span class="p">.</span><span class="nx">ustar</span>     <span class="o">or=</span> <span class="kc">false</span>
+    <span class="nx">@emit</span><span class="p">(</span><span class="s2">&quot;header&quot;</span><span class="p">,</span> <span class="nx">@header</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">@header</span><span class="p">.</span><span class="nx">size</span>
+      <span class="vi">@mode     = </span><span class="s2">&quot;data&quot;</span>
+      <span class="vi">@size     = </span><span class="nx">@header</span><span class="p">.</span><span class="nx">size</span>
+      <span class="vi">@blocks   = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">floor</span><span class="p">(((</span><span class="nx">@header</span><span class="p">.</span><span class="nx">size</span><span class="p">)</span> <span class="o">+</span> <span class="mi">511</span><span class="p">)</span> <span class="o">/</span>  <span class="mi">512</span><span class="p">)</span>
+      <span class="vi">@offset   = </span><span class="mi">0</span>
+    <span class="k">else</span>
+      <span class="vi">@mode     = </span><span class="s2">&quot;start&quot;</span>
+
+  <span class="nv">read: </span><span class="nf">(buffer, offset, length) -&gt;</span>
+    <span class="nx">offset</span> <span class="o">or=</span> <span class="mi">0</span>
+    <span class="nx">length</span> <span class="o">or=</span> <span class="nx">buffer</span><span class="p">.</span><span class="nx">length</span>
+    <span class="nv">read = </span><span class="mi">0</span>
+    <span class="k">while</span> <span class="nx">@end</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">and</span> <span class="nx">read</span> <span class="o">&lt;</span> <span class="nx">length</span>
+      <span class="k">switch</span> <span class="nx">@mode</span>
+        <span class="k">when</span> <span class="s2">&quot;start&quot;</span>
+          <span class="k">if</span> <span class="nx">buffer</span><span class="p">[</span><span class="nx">offset</span> <span class="o">+</span> <span class="nx">read</span><span class="p">]</span> <span class="o">is</span> <span class="mi">0</span>
+            <span class="vi">@mode = </span><span class="s2">&quot;data&quot;</span>
+            <span class="vi">@size = </span><span class="mi">0</span>
+            <span class="vi">@blocks = </span><span class="mi">1</span>
+            <span class="vi">@offset = </span><span class="mi">0</span>
+            <span class="nv">ending = </span><span class="kc">true</span>
+          <span class="k">else</span>
+            <span class="vi">@mode = </span><span class="s2">&quot;header&quot;</span>
+            <span class="nx">@parser</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="s2">&quot;basic&quot;</span><span class="p">)</span>
+            <span class="nv">ending = </span><span class="kc">false</span>
+        <span class="k">when</span> <span class="s2">&quot;header&quot;</span>
+          <span class="nx">read</span> <span class="o">+=</span> <span class="nx">@parser</span><span class="p">.</span><span class="nx">read</span><span class="p">(</span><span class="nx">buffer</span><span class="p">,</span> <span class="nx">offset</span> <span class="o">+</span> <span class="nx">read</span><span class="p">,</span> <span class="nx">length</span> <span class="o">-</span> <span class="nx">read</span><span class="p">)</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">read</span>
+        <span class="k">when</span> <span class="s2">&quot;data&quot;</span>
+          <span class="nv">data = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">@size</span> <span class="o">-</span> <span class="nx">@offset</span><span class="p">,</span> <span class="nx">length</span> <span class="o">-</span> <span class="nx">read</span><span class="p">)</span>
+          <span class="k">if</span> <span class="nx">data</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="nx">@emit</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="nx">@header</span><span class="p">,</span> <span class="nx">buffer</span><span class="p">,</span> <span class="nx">offset</span> <span class="o">+</span> <span class="nx">read</span><span class="p">,</span> <span class="nx">data</span>
+            <span class="nx">@offset</span> <span class="o">+=</span> <span class="nx">data</span>
+            <span class="nx">read</span>  <span class="o">+=</span> <span class="nx">data</span>
+          <span class="nv">blocks = </span><span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">@blocks</span> <span class="o">*</span> <span class="mi">512</span> <span class="o">-</span> <span class="nx">@offset</span><span class="p">,</span> <span class="nx">length</span> <span class="o">-</span> <span class="nx">read</span><span class="p">)</span>
+          <span class="nx">@offset</span> <span class="o">+=</span> <span class="nx">blocks</span>
+          <span class="nx">read</span>  <span class="o">+=</span> <span class="nx">blocks</span>
+          <span class="k">if</span> <span class="nx">@blocks</span> <span class="o">*</span> <span class="mi">512</span> <span class="o">==</span> <span class="nx">@offset</span>
+            <span class="vi">@mode = </span><span class="s2">&quot;start&quot;</span>
+            <span class="k">if</span> <span class="nx">ending</span>
+              <span class="k">if</span> <span class="o">++</span><span class="nx">@end</span> <span class="o">==</span> <span class="mi">2</span>
+                <span class="nx">@emit</span> <span class="s2">&quot;end&quot;</span>
+            <span class="k">else</span>
+              <span class="nx">@emit</span> <span class="s2">&quot;footer&quot;</span><span class="p">,</span> <span class="nx">@header</span>
+    <span class="nx">read</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

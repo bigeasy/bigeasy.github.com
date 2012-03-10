@@ -1,0 +1,19 @@
+NODE TAR
+
+Evented tar archive reader and writer for Node.js.
+
+    Home:           http://bigeasy.github.com/node-tar
+    Source:         http://github.com/bigeasy/node-tar
+    Documentation:  http://github.com/bigeasy/node-tar/wiki
+
+    Discuss:        http://groups.google.com/group/nodejs
+    Issues:         http://github.com/bigeasy/node-tar/issues
+
+    License:        The MIT License
+
+PURPOSE
+
+Read and write tar files from Node.js using JavaScript. This evented library
+ 
+ * allows you to process a tar file as you read it and 
+ * ensues compatability between different operating systems.
