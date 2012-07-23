@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Async Object</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta http-equiv="refresh" content="2;url=https://github.com/bigeasy/reiterate">
+  <link rel="stylesheet" media="all" href="site/idl.css">
+</head>
+<body>
+  
+  <a href="http://github.com/bigeasy/async-object"><img style="position: fixed; top: 0; right:
+  0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"
+  alt="Fork me on GitHub" /></a>
+  
+  <div id="container">
+    <div id="api">
+      <h1>Async Object</h1>
+      
+        
+      
+        
+          <h2 class="heading">Synopsis</h3>
+        
+      
+        
+          <h3 class="namespace depth-0">async-object</h3>
+        
+      
+        
+          <h3 class="function depth-1">loadObject</h3>
+        
+      
+      
+    </div>
+    <div id="narrative">
+      
+        
+        
+        
+          <h1>Async Object</h1>
+
+<p>Evented construction of JSON objects.</p>
+        
+      
+        
+        
+        
+          <h2>Synopsis</h2>
+
+<p>Async Object creates a JSON object tree asynchronously, interpreting functions
+in the object heirarchy as data methods that accept a callback.</p>
+
+<p>You can use functions to define the functions that populate the structure.</p>
+
+<p>The data functions can inject more data functions into the heirarchy, so that
+the children can be created based on their parents.</p>
+        
+          <div class="highlight"><pre><span class="kd">var</span> <span class="nx">loadObject</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;async-object&quot;</span><span class="p">).</span><span class="nx">loadObject</span><span class="p">,</span>
+    <span class="nx">datastore</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;acme-datastore&quot;</span><span class="p">).</span><span class="nx">datastore</span><span class="p">;</span>
+
+<span class="kd">function</span> <span class="nx">getArticleByPerson</span><span class="p">(</span><span class="nx">personId</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">function</span> <span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">datastore</span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s2">&quot;articles&quot;</span><span class="p">,</span> <span class="s2">&quot;personId&quot;</span><span class="p">,</span> <span class="nx">personId</span><span class="p">,</span> <span class="nx">callback</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">getPerson</span> <span class="p">(</span><span class="nx">id</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">function</span> <span class="p">(</span><span class="nx">callback</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">datastore</span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="s2">&quot;people&quot;</span><span class="p">,</span> <span class="nx">id</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">people</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">callback</span><span class="p">(</span><span class="nx">error</span><span class="p">);</span>
+      <span class="p">}</span>  <span class="k">else</span> <span class="p">{</span>
+        <span class="nx">person</span> <span class="o">=</span> <span class="nx">people</span><span class="p">.</span><span class="nx">shift</span><span class="p">();</span>
+        <span class="nx">person</span><span class="p">.</span><span class="nx">articles</span> <span class="o">=</span> <span class="nx">getArticleByPerson</span><span class="p">(</span><span class="nx">person</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+        <span class="nx">callback</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="nx">person</span><span class="p">);</span>
+      <span class="p">}</span>
+    <span class="p">});</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">person</span><span class="o">:</span> <span class="nx">getPeople</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">};</span>
+<span class="nx">loadObject</span><span class="p">(</span><span class="nx">data</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="nx">data</span><span class="p">.</span><span class="nx">person</span><span class="p">.</span><span class="nx">articles</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">article</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">person</span><span class="p">.</span><span class="nx">articles</span><span class="p">[</span><span class="nx">i</span><span class="p">];</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">stdout</span><span class="p">.</span><span class="nx">write</span><span class="p">(</span><span class="nx">article</span><span class="p">.</span><span class="nx">title</span> <span class="o">+</span> <span class="s2">&quot; by &quot;</span> <span class="o">+</span> <span class="nx">person</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="s2">&quot;\n&quot;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+
+        
+          <p><br>
+For those of you using a NoSQL database, this is an easy way to get a
+pseudo-JOIN, to create a psuedo-JOIN across database engines</p>
+        
+      
+        
+          <h3 class="namespace">async-object</h3>
+        
+        
+        
+          <p>The <code>async-object</code> module exports the <code>loadObject</code> method.</p>
+        
+          <div class="highlight"><pre><span class="kd">var</span> <span class="nx">loadObject</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s2">&quot;async-object&quot;</span><span class="p">).</span><span class="nx">loadObject</span><span class="p">;</span>
+</pre></div>
+
+        
+          
+        
+      
+        
+          
+            <h3 class="function">async-object.loadObject(object, callback)</h3>
+          
+        
+        
+            
+                <div class="parameter">
+                  <h4>object</h4>
+                  
+                    <p>The object to populate.</p>
+                  
+                </div>
+            
+                <div class="parameter">
+                  <h4>callback</h4>
+                  
+                    <p>The callback to invoke when the object has been loaded, or when an error
+  occurs.</p>
+                  
+                </div>
+            
+        
+        
+          <p>Use the <code>loadObject</code> method to load the <code>object</code> and invoke the given <code>callback</code>
+when the object is loaded or if there is an error.</p>
+
+<p>Any valid JSON type can be passed to <code>loadObject</code>. If the type is not an object,
+array or function, the data is simply forwarded to the callback.</p>
+
+<p><code>loadObject</code> will descend the object contents recursively. Any values of type
+<code>function</code> found in an object or array are assumed to be methods that accept a
+single callback and invoked. The callback is of the form <code>callback(error,
+data)</code>.</p>
+
+<p>If data generation function invokes the callback is invoked with an error, the
+error is forwarded to the user callback passed to <code>loadObject</code> and loading ends.
+Otherwise, each value in th  data passed to the callback descended searching for
+functions.</p>
+
+<p>Note that each value of the data given to the is first checked for a function
+that needs to be expanded, invokes the function if it exists. This means that a
+one data function can return a data structure with data functions in it, and
+those data functions will be be expanded before they are assigned to the tree.</p>
+
+<p>You can also pass a function as the <code>object</code> argument so that the expanded data
+callback result is given to the user callback.</p>
+        
+      
+    </div>
+  </div>
+</body>
+</html>
