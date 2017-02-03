@@ -1,3 +1,0 @@
-[submodule "vendor/docco"]
-	path = vendor/docco
-	url = git://github.com/jashkenas/docco.git
